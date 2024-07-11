@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Models;
@@ -60,6 +61,22 @@ namespace PersonalPhotos.Test
             var result = await _controller.Login(modelView);
 
             Assert.IsType<RedirectToActionResult>(result);
+        }
+
+        [Fact]
+        public async Task Login_GivenIncorrectPassword_RedirectLoginView()
+        {
+            const string password = "adfkçl";
+            var modelView = Mock.Of<LoginViewModel>(x => x.Email == "a@b.com" && x.Password == password);
+            var model = Mock.Of<User>(x => x.Password == password);
+
+            _logins.Setup(x => x.GetUser(It.IsAny<string>())).ReturnsAsync(model);
+
+            var result = await _controller.Login(Mock.Of<LoginViewModel>() ) as ViewResult;
+
+            Assert.Equal("Login", result.ViewName, ignoreCase: true);
+
+
         }
     }
 }
